@@ -1,70 +1,67 @@
 import { ProductCard } from './ProductCard';
 import { Product } from '../types';
 import { useState } from 'react';
-import { ArrowUp } from 'lucide-react';
 
 interface ProductGridProps {
   products: Product[];
 }
 
 export function ProductGrid({ products }: ProductGridProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortOption, setSortOption] = useState('price-desc');
-  const [filterOption, setFilterOption] = useState('all');
+  const [selectedCollection, setSelectedCollection] = useState<string>(''); // State for collection filter
+  const [sort, setSort] = useState<string>('price-desc'); // Set default sort to "price-desc"
 
-  const filteredProducts = products.filter(product => 
-    product.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (filterOption === 'all' || product.collection === filterOption)
-  );
-
-  const sortedProducts = filteredProducts.sort((a, b) => {
-    if (sortOption === 'price-asc') return (a.price ?? Infinity) - (b.price ?? Infinity);
-    if (sortOption === 'price-desc') return (b.price ?? -Infinity) - (a.price ?? -Infinity);
-    return 0;
-  });
-
+  // Extract unique collections from products
   const uniqueCollections = Array.from(new Set(products.map(product => product.collection))).filter(Boolean);
 
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Filter products based on the selected collection
+  const filteredProducts = products.filter(product => {
+    return selectedCollection ? product.collection === selectedCollection : true;
+  });
+
+  // Sort products based on the selected sort criteria
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sort === 'price-asc') {
+      return parseFloat(a.price) - parseFloat(b.price);
+    } else if (sort === 'price-desc') {
+      return parseFloat(b.price) - parseFloat(a.price);
+    } else {
+      return 0; // No sorting
+    }
+  });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 relative">
-      <input
-        type="text"
-        placeholder="Search products..."
-        className="w-full p-2 mb-2 border border-gray-300 rounded-md"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      
-      <div className="flex space-x-4 mb-4">
-        <select value={sortOption} onChange={(e) => setSortOption(e.target.value)} className="p-2 border border-gray-300 rounded-md">
-          <option value="default">Sort By</option>
+    <div>
+      {/* Filter and Sort Options */}
+      <div className="mb-4 flex flex-row justify-start items-center space-x-2">
+        <select
+          value={selectedCollection}
+          onChange={(e) => setSelectedCollection(e.target.value)}
+          className="border rounded-md p-1 text-xs"
+        >
+          <option value="">All Collections</option>
+          {uniqueCollections.map((collection) => (
+            <option key={collection} value={collection}>
+              {collection}
+            </option>
+          ))}
+        </select>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="border rounded-md p-1 text-xs"
+        >
+          <option value="">Sort by</option>
           <option value="price-asc">Price: Low to High</option>
           <option value="price-desc">Price: High to Low</option>
         </select>
-
-        <select value={filterOption} onChange={(e) => setFilterOption(e.target.value)} className="p-2 border border-gray-300 rounded-md">
-          <option value="all">Collections</option>
-          {uniqueCollections.map((collection, index) => (
-            <option key={index} value={collection}>{collection}</option>
-          ))}
-        </select>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
-        {sortedProducts.map((product, index) => (
-          <ProductCard key={index} product={product} />
+      {/* Product Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {sortedProducts.map((product) => (
+          <ProductCard key={product.title} product={product} />
         ))}
       </div>
-
-      {/* Move to Top Button */}
-      <button
-        onClick={scrollToTop}
-        className="fixed bottom-4 right-4 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors duration-300"
-      >
-        <ArrowUp className="h-6 w-6" />
-      </button>
     </div>
   );
 }
