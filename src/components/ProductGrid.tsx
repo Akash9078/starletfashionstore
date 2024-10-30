@@ -9,7 +9,7 @@ interface ProductGridProps {
 
 export function ProductGrid({ products }: ProductGridProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOption, setSortOption] = useState('default');
+  const [sortOption, setSortOption] = useState('price-desc');
   const [filterOption, setFilterOption] = useState('all');
 
   const filteredProducts = products.filter(product => 

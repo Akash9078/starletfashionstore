@@ -5,6 +5,6 @@ export interface Product {
   productlink: string;
   image1?: string;
   image2?: string;
-  image?: string;
+  image3?: string;
   [key: string]: string | undefined;
 }
