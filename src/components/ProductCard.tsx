@@ -1,6 +1,6 @@
 import { ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product } from '../types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ProductModal } from './ProductModal';
 
 interface ProductCardProps {
@@ -10,7 +10,24 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const images = [product.image1, product.image2, product.image3].filter(Boolean);
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768); // 768px is typical tablet/mobile breakpoint
+    };
+
+    // Check on initial load
+    checkIfMobile();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', checkIfMobile);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
 
   const handleNextImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -21,6 +38,8 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
+    if (isMobile) return; // Don't open modal on mobile
+    
     if (!(e.target as HTMLElement).closest('.navigation-arrow')) {
       setIsModalOpen(true);
     }
@@ -29,7 +48,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <>
       <div
-        className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+        className={`bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 ${!isMobile ? 'cursor-pointer' : ''}`}
         onClick={handleCardClick}
       >
         <div className="relative group">
@@ -90,7 +109,8 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </div>
 
-      {isModalOpen && (
+      {/* Only render modal if not on mobile and modal is open */}
+      {!isMobile && isModalOpen && (
         <ProductModal product={product} onClose={() => setIsModalOpen(false)} />
       )}
     </>

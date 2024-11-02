@@ -14,6 +14,18 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
   const images = [product.image1, product.image2, product.image3].filter(Boolean);
   const slideIntervalRef = useRef<number>();
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    // Save the current overflow style
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    // Prevent scrolling on mount
+    document.body.style.overflow = 'hidden';
+    // Re-enable scrolling on cleanup
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
+
   // Auto-slide functionality with better control
   useEffect(() => {
     const startSlideShow = () => {

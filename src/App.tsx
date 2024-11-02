@@ -2,9 +2,47 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { ProductGrid } from './components/ProductGrid';
 import { useProducts } from './hooks/useProducts';
+import { useEffect } from 'react';
 
 function App() {
   const { products, loading, error } = useProducts();
+
+  // Save scroll position periodically
+  useEffect(() => {
+    const saveScrollPosition = () => {
+      localStorage.setItem('scrollPosition', window.scrollY.toString());
+    };
+
+    // Save scroll position every 1 second
+    const scrollInterval = setInterval(saveScrollPosition, 1000);
+
+    // Save on scroll
+    window.addEventListener('scroll', saveScrollPosition);
+
+    // Save when leaving page
+    window.addEventListener('beforeunload', saveScrollPosition);
+
+    // Restore scroll position after content loads
+    if (!loading && products.length > 0) {
+      const savedPosition = localStorage.getItem('scrollPosition');
+      if (savedPosition) {
+        const position = parseInt(savedPosition);
+        // Wait for DOM to update
+        setTimeout(() => {
+          window.scrollTo({
+            top: position,
+            behavior: 'instant'
+          });
+        }, 500);
+      }
+    }
+
+    return () => {
+      clearInterval(scrollInterval);
+      window.removeEventListener('scroll', saveScrollPosition);
+      window.removeEventListener('beforeunload', saveScrollPosition);
+    };
+  }, [loading, products]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -21,7 +59,11 @@ function App() {
           <div className="bg-red-50 border border-red-200 rounded-md p-4 mx-auto max-w-md">
             <p className="text-red-800 text-center">{error}</p>
             <button 
-              onClick={() => window.location.reload()} 
+              onClick={() => {
+                // Save current position before reload
+                localStorage.setItem('scrollPosition', window.scrollY.toString());
+                window.location.reload();
+              }} 
               className="mt-4 mx-auto block px-4 py-2 bg-red-100 text-red-800 rounded-md hover:bg-red-200 transition-colors duration-300"
             >
               Retry
