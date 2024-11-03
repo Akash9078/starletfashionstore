@@ -2,10 +2,11 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { ProductGrid } from './components/ProductGrid';
 import { useProducts } from './hooks/useProducts';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 function App() {
   const { products, loading, error } = useProducts();
+  const [showScroll, setShowScroll] = useState(false); // State to control visibility of the scroll button
 
   // Save scroll position periodically
   useEffect(() => {
@@ -13,10 +14,20 @@ function App() {
       localStorage.setItem('scrollPosition', window.scrollY.toString());
     };
 
+    // Show/hide scroll button based on scroll position
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScroll(true);
+      } else {
+        setShowScroll(false);
+      }
+    };
+
     // Save scroll position every 1 second
     const scrollInterval = setInterval(saveScrollPosition, 1000);
 
     // Save on scroll
+    window.addEventListener('scroll', handleScroll);
     window.addEventListener('scroll', saveScrollPosition);
 
     // Save when leaving page
@@ -39,10 +50,15 @@ function App() {
 
     return () => {
       clearInterval(scrollInterval);
+      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('scroll', saveScrollPosition);
       window.removeEventListener('beforeunload', saveScrollPosition);
     };
   }, [loading, products]);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -89,6 +105,17 @@ function App() {
       </footer>
 
       <Footer />
+
+      {/* Move to Top Button */}
+      {showScroll && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-4 right-4 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors duration-300"
+          aria-label="Scroll to top"
+        >
+          ↑
+        </button>
+      )}
     </div>
   );
 }
