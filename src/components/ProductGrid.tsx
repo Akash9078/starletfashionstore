@@ -32,11 +32,11 @@ export function ProductGrid({ products }: ProductGridProps) {
   return (
     <div>
       {/* Filter and Sort Options */}
-      <div className="mb-4 flex flex-row justify-start items-center space-x-2">
+      <div className="mb-4 py-1 flex flex-row justify-start items-center space-x-2 sticky top-0 bg-white text-black z-10">
         <select
           value={selectedCollection}
           onChange={(e) => setSelectedCollection(e.target.value)}
-          className="border rounded-md p-1 text-xs"
+          className="border rounded-md p-1 text-xs bg-white text-black"
         >
           <option value="">All Collections</option>
           {uniqueCollections.map((collection) => (
@@ -48,7 +48,7 @@ export function ProductGrid({ products }: ProductGridProps) {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          className="border rounded-md p-1 text-xs"
+          className="border rounded-md p-1 text-xs bg-white text-black"
         >
           <option value="">Sort by</option>
           <option value="price-asc">Price: Low to High</option>
