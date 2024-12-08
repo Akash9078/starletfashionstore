@@ -38,8 +38,6 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    if (isMobile) return; // Don't open modal on mobile
-    
     if (!(e.target as HTMLElement).closest('.navigation-arrow')) {
       setIsModalOpen(true);
     }
@@ -52,66 +50,108 @@ export function ProductCard({ product }: ProductCardProps) {
         onClick={handleCardClick}
       >
         <div className="relative group">
-          <div className="aspect-[2/3] w-full relative">
+          <div className="relative w-full" style={{ minHeight: '200px' }}>
             <img
               src={images[currentImageIndex]}
               alt={product.title}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300"
+              loading="lazy"
+              className="w-full h-auto object-contain"
+              style={{ 
+                backgroundColor: '#f8f8f8',
+                minHeight: isMobile ? '250px' : '200px',
+                maxHeight: '400px'
+              }}
               onError={(e) => {
                 const img = e.target as HTMLImageElement;
-                img.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?auto=format&fit=crop';
+                img.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?auto=format&fit=crop&w=800&q=80';
               }}
             />
-          </div>
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-300"></div>
-          
-          {/* Arrow icons for navigation */}
-          <div 
-            className="navigation-arrow absolute left-2 top-1/2 transform -translate-y-1/2 cursor-pointer" 
-            onClick={(e) => {
-              e.stopPropagation();
-              handlePrevImage();
-            }}
-          >
-            <ChevronLeft className="h-8 w-8 text-white" />
-          </div>
-          <div 
-            className="navigation-arrow absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleNextImage();
-            }}
-          >
-            <ChevronRight className="h-8 w-8 text-white" />
+            
+            {/* Navigation arrows */}
+            {images.length > 1 && (
+              <>
+                <div 
+                  className="navigation-arrow absolute left-2 top-1/2 transform -translate-y-1/2 cursor-pointer" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrevImage();
+                  }}
+                >
+                  <ChevronLeft className="h-8 w-8 text-white" />
+                </div>
+                <div 
+                  className="navigation-arrow absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNextImage();
+                  }}
+                >
+                  <ChevronRight className="h-8 w-8 text-white" />
+                </div>
+              </>
+            )}
           </div>
         </div>
         
-        <div className="p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 transition-colors duration-300">
-            {product.title || 'Untitled Product'}
-          </h2>
-          <p className="text-gray-500 mb-2">{product.collection || 'No Collection'}</p>
-          <p className="text-gray-600 mb-4">{product.platform || 'N/A'}</p>
-          <div className="flex justify-between items-center">
-            <span className="text-2xl font-bold text-blue-600">${product.price || 'Price unavailable'}</span>
-            {product.productlink && (
-              <a
-                href={product.productlink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300 ml-4"
-              >
-                Buy
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </a>
-            )}
-          </div>
+        {/* Content section */}
+        <div className="p-4">
+          {isMobile ? (
+            // Mobile layout - simplified
+            <div className="space-y-2">
+              <h2 className="text-base font-medium text-gray-900 line-clamp-1">
+                {product.title || 'Untitled Product'}
+              </h2>
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-bold text-blue-600">
+                  ${product.price || 'Price unavailable'}
+                </span>
+                {product.productlink && (
+                  <a
+                    href={product.productlink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors duration-300"
+                  >
+                    Buy
+                    <ExternalLink className="ml-1 h-3 w-3" />
+                  </a>
+                )}
+              </div>
+            </div>
+          ) : (
+            // Desktop layout - full content
+            <>
+              <h2 className="text-lg font-medium text-gray-900 mb-1 line-clamp-1 hover:text-blue-600 transition-colors duration-300">
+                {product.title || 'Untitled Product'}
+              </h2>
+              <p className="text-sm text-gray-500 mb-1">{product.collection || 'No Collection'}</p>
+              <p className="text-sm text-gray-600 mb-2">{product.platform || 'N/A'}</p>
+              <div className="flex justify-between items-center">
+                <span className="text-xl font-bold text-blue-600">${product.price || 'Price unavailable'}</span>
+                {product.productlink && (
+                  <a
+                    href={product.productlink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors duration-300 ml-3"
+                  >
+                    Buy
+                    <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                  </a>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
       {/* Only render modal if not on mobile and modal is open */}
-      {!isMobile && isModalOpen && (
-        <ProductModal product={product} onClose={() => setIsModalOpen(false)} />
+      {isModalOpen && (
+        <ProductModal 
+          product={product} 
+          onClose={() => setIsModalOpen(false)} 
+          isMobile={isMobile}
+        />
       )}
     </>
   );
