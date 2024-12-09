@@ -57,7 +57,7 @@ export function ProductGrid({ products }: ProductGridProps) {
       </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
         {sortedProducts.map((product) => (
           <ProductCard key={product.title} product={product} />
         ))}

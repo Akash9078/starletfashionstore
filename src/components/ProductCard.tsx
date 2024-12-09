@@ -98,7 +98,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {isMobile ? (
             // Mobile layout - simplified
             <div className="space-y-2">
-              <h2 className="text-base font-medium text-gray-900 line-clamp-1">
+              <h2 className="text-sm font-medium text-gray-900 line-clamp-1">
                 {product.title || 'Untitled Product'}
               </h2>
               <div className="flex justify-between items-center">
